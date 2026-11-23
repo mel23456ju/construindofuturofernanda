@@ -98,336 +98,426 @@ export default async function handler(req, res) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  let erroHtml = '';
+  let bodyContent = '';
+
   if (erro) {
-    erroHtml = `
-      <div class="erro-container">
-        <div class="erro-icon">&#x26A0;&#xFE0F;</div>
-        <h2>Ops, algo deu errado</h2>
-        <p>${esc(erro)}</p>
+    bodyContent = `
+    <div class="page-top">
+        <div class="valor-badge">
+            <div class="valor-badge-dot"></div>
+            <span>Doação de</span>
+            <strong>R$ ${esc(amountFormatted)}</strong>
+        </div>
+        <h1 class="top-title">Ops, algo deu <em>errado</em></h1>
+        <p class="top-sub">${esc(erro)}</p>
+        <div class="top-onda">
+            <svg viewBox="0 0 1440 38" preserveAspectRatio="none"><path d="M0,19 C240,38 480,0 720,12 C960,24 1200,38 1440,8 L1440,38 L0,38 Z" fill="#FDFBF7"/></svg>
+        </div>
+    </div>
+    <div class="card" style="text-align:center;">
         <button class="btn-tentar" onclick="history.back()">Tentar Novamente</button>
-      </div>`;
-  }
+    </div>`;
+  } else {
+    bodyContent = `
+    <div class="page-top">
+        <div class="valor-badge">
+            <div class="valor-badge-dot"></div>
+            <span>Doação de</span>
+            <strong>R$ ${esc(amountFormatted)}</strong>
+        </div>
+        <h1 class="top-title">Quase <em>lá!</em></h1>
+        <p class="top-sub">Falta só um passo para sua doação transformar vidas 💙</p>
+        <div class="top-onda">
+            <svg viewBox="0 0 1440 38" preserveAspectRatio="none"><path d="M0,19 C240,38 480,0 720,12 C960,24 1200,38 1440,8 L1440,38 L0,38 Z" fill="#FDFBF7"/></svg>
+        </div>
+    </div>
 
-  let pixHtml = '';
-  if (!erro) {
-    pixHtml = `
-      <div class="beneficiario">
-        Beneficiario: <strong>Causas Do Bem</strong>
-      </div>
+    <div class="card">
+        <!-- Bloco 1: Codigo copia e cola -->
+        <div class="block">
+            <div class="section-label">
+                <div class="section-label-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </div>
+                <h2>1. Copie o código Pix</h2>
+            </div>
+            <div class="recorte"></div>
+            <div class="code-inner">
+                <div class="code-box" onclick="copiarTexto()" title="Clique para copiar">
+                    <div class="code-label">Pix Copia e Cola</div>
+                    <div class="code-value" id="codePreview">${esc(pixCode)}</div>
+                    <input type="hidden" id="copia_cola" value="${esc(pixCode)}">
+                </div>
+                <div class="beneficiary-box">
+                    <div class="beneficiary-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <span>Beneficiário oficial: <strong>Causas Do Bem</strong></span>
+                </div>
+                <button class="btn-copiar" id="copyBtn" onclick="copiarTexto()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span class="copy-text">COPIAR CÓDIGO PIX</span>
+                </button>
+            </div>
+        </div>
 
-      <div class="step-label">
-        <div class="step-num">1</div>
-        <div class="step-text">Pix Copia e Cola</div>
-      </div>
+        <!-- Bloco 2: Passos -->
+        <div class="block">
+            <div class="section-label">
+                <div class="section-label-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h2>2. Finalize no seu banco</h2>
+            </div>
+            <div class="recorte"></div>
+            <div class="steps-inner">
+                <div class="steps-list">
+                    <div class="step-row">
+                        <div class="step-num">1</div>
+                        <div class="step-desc">Abra o aplicativo do seu <strong>banco de preferência</strong>.</div>
+                    </div>
+                    <div class="step-row">
+                        <div class="step-num">2</div>
+                        <div class="step-desc">Acesse a área <strong>Pix</strong>, selecione <strong>Pagar / Transferir</strong> e escolha <strong>Pix Copia e Cola</strong>.</div>
+                    </div>
+                    <div class="step-row">
+                        <div class="step-num">3</div>
+                        <div class="step-desc">Cole o código copiado, confirme o destinatário (<strong>Causas Do Bem</strong>) e <strong>conclua sua doação</strong> com segurança.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-      <div class="pix-code-box" id="pixCodeText">${esc(pixCode)}</div>
+        <!-- Bloco 3: QR Code -->
+        <div class="block">
+            <div class="section-label">
+                <div class="section-label-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3zM14 20h3v1h-3zM20 14h1v3h-1zM20 20h1v1h-1z"></path></svg>
+                </div>
+                <h2>Ou escaneie o QR Code</h2>
+            </div>
+            <div class="recorte"></div>
+            <div class="qr-inner">
+                <p class="qr-sub">Abra o app do banco, escolha "Pagar com QR Code" e aponte a câmera:</p>
+                <div class="qr-frame">
+                    <img src="${esc(qrImageUrl)}" alt="QR Code PIX">
+                </div>
+            </div>
+        </div>
 
-      <button class="btn-copiar-pix" id="btnCopiarCodigo" onclick="copiarCodigoPix()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        COPIAR CODIGO PIX
-      </button>
+        <!-- Trust Bar -->
+        <div class="block card-footer">
+            <div class="footer-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div class="footer-text">
+                <strong>Ambiente 100% seguro</strong>
+                <span>Criptografia ativa protegida por Gateway de Pagamento</span>
+            </div>
+            <div class="footer-validity">⏱ 24h</div>
+        </div>
 
-      <div class="step-label" style="margin-top: 1.25rem;">
-        <div class="step-num">2</div>
-        <div class="step-text">Cole no app do seu banco</div>
-      </div>
+        <div class="aguarde-row">
+            <div class="aguarde-spinner"></div>
+            Assim que o Pix for confirmado, você será redirecionado automaticamente
+        </div>
+    </div>
 
-      <div class="instrucao">
-        Abra o app do seu banco, va na area <strong>Pix &gt; Copia e Cola</strong>, cole o codigo e confirme. O beneficiario sera <strong>Causas Do Bem</strong>.
-      </div>
-
-      <div class="divisor">ou pague com QR Code</div>
-
-      <div class="qr-section">
-        <div class="qr-label">Pagar com QR Code</div>
-        <img src="${esc(qrImageUrl)}" alt="QR Code Pix">
-      </div>`;
+    <!-- TOAST -->
+    <div class="toast" id="toast">
+        <div class="toast-check">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="toast-text">
+            <strong>Código copiado!</strong>
+            <span>Cole no app do seu banco e finalize 💙</span>
+        </div>
+    </div>`;
   }
 
   const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quase la! — Construindo Futuro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<title>Quase lá! — Construindo Futuro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --azul-principal: #0056b3;
-  --azul-escuro: #003366;
-  --azul-luz: #e6f0fa;
-  --verde-botao: #28a745;
-  --verde-hover: #218838;
-  --verde-sombra: #1e7e34;
-  --fundo-creme: #FDFBF7;
-  --branco: #FFFFFF;
-  --texto-forte: #111814;
-  --texto-medio: #4F5E55;
-  --borda: #E0E5E2;
-  --raio-sm: 10px;
-  --raio-md: 16px;
-  --fonte-corpo: 'Manrope', sans-serif;
+    --azul-principal: #0056b3;
+    --azul-escuro: #003366;
+    --azul-luz: #e6f0fa;
+    --amarelo-acao: #FFC107;
+    --amarelo-hover: #e0a800;
+    --verde-botao: #28a745;
+    --verde-hover: #218838;
+    --verde-sombra: #1e7e34;
+    --vermelho-urgencia: #FF3B30;
+    --fundo-creme: #FDFBF7;
+    --branco: #FFFFFF;
+    --texto-forte: #111814;
+    --texto-medio: #4F5E55;
+    --borda: #E0E5E2;
+    --raio-sm: 10px;
+    --raio-md: 16px;
+    --sombra-card: 0 4px 16px -4px rgba(0,0,0,0.06);
+    --fonte-display: 'Fraunces', serif;
+    --fonte-corpo: 'Manrope', sans-serif;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { overflow-x: hidden; }
 body {
-  font-family: var(--fonte-corpo);
-  background: var(--azul-escuro);
-  color: var(--texto-forte);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+    font-family: var(--fonte-corpo);
+    background: var(--fundo-creme);
+    color: var(--texto-forte);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
 }
-.pix-container {
-  background: var(--branco);
-  width: 100%;
-  max-width: 440px;
-  border-radius: var(--raio-md);
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+h1, h2 { font-family: var(--fonte-display); font-weight:700; letter-spacing:-0.02em; line-height:1.1; }
+button { cursor:pointer; border:none; background:none; font-family:inherit; }
+img { max-width:100%; height:auto; display:block; }
+
+.page-top {
+    width:100%;
+    background: radial-gradient(ellipse 120% 80% at 50% -20%, var(--azul-principal) 0%, var(--azul-escuro) 100%);
+    color: var(--branco);
+    padding: 2.5rem 1.5rem 3.6rem;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    position:relative; overflow:hidden;
 }
-.pix-header {
-  background: var(--azul-principal);
-  color: var(--branco);
-  padding: 1.25rem;
-  text-align: center;
+.page-top::before {
+    content:''; position:absolute; inset:0;
+    background-image: radial-gradient(rgba(255,255,255,.08) 1.2px, transparent 1.2px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(to bottom, black, transparent 80%);
+    -webkit-mask-image: linear-gradient(to bottom, black, transparent 80%);
+    pointer-events:none;
 }
-.pix-header h1 {
-  font-size: 1.2rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+.top-onda { position:absolute; left:0; right:0; bottom:-1px; line-height:0; pointer-events:none; }
+.top-onda svg { width:100%; height:38px; display:block; }
+
+.valor-badge {
+    display:inline-flex; align-items:center; gap:9px;
+    background: var(--branco); border-radius:50px; padding:7px 18px;
+    margin-bottom:1.1rem; position:relative; z-index:1;
+    box-shadow: 0 10px 24px -6px rgba(255,193,7,0.4);
+    border: 2px solid var(--amarelo-acao);
+    animation: fadeDown .45s .07s ease both;
 }
-.pix-header .valor-badge {
-  display: inline-block;
-  background: rgba(255,255,255,0.2);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-top: 8px;
+.valor-badge-dot {
+    width:8px; height:8px; border-radius:50%;
+    background: var(--vermelho-urgencia);
+    animation: blink 1.4s ease-in-out infinite;
 }
-.pix-body { padding: 1.5rem; }
-.beneficiario {
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--texto-medio);
-  margin-bottom: 1.25rem;
-  font-weight: 600;
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+.valor-badge span { font-size:.75rem; font-weight:800; color:var(--texto-medio); letter-spacing:.05em; text-transform:uppercase; }
+.valor-badge strong { font-family:var(--fonte-display); font-size:1.25rem; color:var(--azul-escuro); font-weight:800; }
+
+.top-title { font-size:2.1rem; font-weight:800; line-height:1.15; position:relative; z-index:1; animation: fadeDown .45s .12s ease both; }
+.top-title em { font-style:normal; color:var(--amarelo-acao); }
+.top-sub { font-size:.95rem; font-weight:500; color:rgba(255,255,255,.85); margin-top:.5rem; position:relative; z-index:1; animation: fadeDown .45s .16s ease both; }
+
+.card {
+    width:100%; max-width:560px; padding:1.6rem 1.15rem 3rem;
+    display:flex; flex-direction:column; gap:1.1rem;
+    animation: fadeUp .5s .3s ease both;
 }
-.beneficiario strong { color: var(--texto-forte); }
-.step-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 0.75rem;
+.block {
+    background:var(--branco); border:1px solid var(--borda);
+    border-radius:var(--raio-md); overflow:hidden;
+    box-shadow:var(--sombra-card);
 }
+.section-label { display:flex; align-items:center; gap:11px; padding:1.15rem 1.25rem .95rem; }
+.section-label-icon {
+    width:34px; height:34px; background:var(--azul-luz); color:var(--azul-principal);
+    border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.section-label h2 { font-family:var(--fonte-corpo); font-size:1.05rem; font-weight:800; color:var(--azul-escuro); }
+
+.recorte { position:relative; height:0; border-top:2px dashed var(--borda); margin:0 1.1rem; }
+.recorte::before, .recorte::after {
+    content:''; position:absolute; top:-12px; width:24px; height:24px; border-radius:50%;
+    background:var(--fundo-creme); border:1px solid var(--borda);
+}
+.recorte::before { left:-24px; }
+.recorte::after { right:-24px; }
+
+.code-inner { padding:1.2rem 1.25rem 1.35rem; }
+.code-box {
+    background:var(--azul-luz); border:2px dashed var(--azul-principal);
+    border-radius:var(--raio-sm); padding:13px 15px; margin-bottom:.9rem;
+    cursor:pointer; transition:background .2s, transform .15s;
+}
+.code-box:hover { background:#D0E4F5; }
+.code-box:active { transform:scale(.99); }
+.code-label { font-size:.66rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--azul-escuro); margin-bottom:3px; }
+.code-value { font-family:monospace; font-size:.95rem; font-weight:700; color:var(--azul-escuro); line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.beneficiary-box {
+    display:flex; align-items:center; gap:10px;
+    background:var(--branco); border:1px solid var(--borda);
+    border-radius:var(--raio-sm); padding:11px 15px; margin-bottom:.9rem;
+    font-size:0.88rem; color:var(--texto-medio);
+}
+.beneficiary-box strong { color:var(--texto-forte); font-weight:800; }
+.beneficiary-icon { color:var(--azul-principal); display:flex; align-items:center; flex-shrink:0; }
+
+@keyframes pulse-verde {
+    0%   { box-shadow: 0 6px 18px rgba(40,167,69,.4), 0 0 0 0 rgba(40,167,69,.45); }
+    65%  { box-shadow: 0 6px 18px rgba(40,167,69,.4), 0 0 0 14px rgba(40,167,69,0); }
+    100% { box-shadow: 0 6px 18px rgba(40,167,69,.4), 0 0 0 0 rgba(40,167,69,0); }
+}
+.btn-copiar {
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    width:100%; background:var(--verde-botao); color:var(--branco);
+    padding:1rem 1.4rem; border-radius:var(--raio-sm);
+    font-family:var(--fonte-corpo); font-weight:800; font-size:.98rem;
+    letter-spacing:.04em; text-transform:uppercase;
+    animation: pulse-verde 2s ease-out infinite;
+    transition: background .18s, transform .15s;
+}
+.btn-copiar:hover { background:var(--verde-hover); transform:translateY(-1px); }
+.btn-copiar:active { animation:none; transform:scale(.98); }
+.btn-copiar.copied { background:var(--verde-sombra); animation:none; box-shadow:0 6px 18px rgba(30,126,52,.4); }
+
+.steps-inner { padding:1.1rem 1.25rem 1.3rem; }
+.steps-list { display:flex; flex-direction:column; gap:13px; }
+.step-row { display:flex; align-items:flex-start; gap:12px; }
 .step-num {
-  width: 24px;
-  height: 24px;
-  background: var(--azul-principal);
-  color: var(--branco);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 800;
-  flex-shrink: 0;
+    width:24px; height:24px; background:var(--azul-principal); color:var(--branco);
+    font-size:.75rem; font-weight:800; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;
 }
-.step-text {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--azul-escuro);
+.step-desc { font-size:.90rem; color:var(--texto-medio); line-height:1.5; }
+.step-desc strong { color:var(--texto-forte); font-weight:800; }
+
+.qr-inner { padding:1.1rem 1.25rem 1.4rem; text-align:center; }
+.qr-sub { font-size:.88rem; color:var(--texto-medio); margin-bottom:1.1rem; }
+.qr-frame {
+    position:relative; background:var(--branco); border-radius:18px; padding:1.2rem;
+    display:inline-flex; justify-content:center; align-items:center; margin:0 auto;
+    border:1px solid var(--borda); box-shadow:var(--sombra-card);
 }
-.pix-code-box {
-  background: var(--azul-luz);
-  border: 2px dashed var(--azul-principal);
-  border-radius: var(--raio-sm);
-  padding: 0.75rem;
-  font-family: monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--azul-escuro);
-  word-break: break-all;
-  user-select: all;
-  max-height: 80px;
-  overflow-y: auto;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
+.qr-frame img { max-width:190px; height:auto; border-radius:8px; }
+
+.card-footer {
+    background:var(--azul-escuro); border:none; padding:1.15rem 1.25rem;
+    display:flex; align-items:center; gap:13px;
 }
-.btn-copiar-pix {
-  width: 100%;
-  background: var(--verde-botao);
-  color: var(--branco);
-  font-size: 1rem;
-  font-weight: 800;
-  padding: 1rem;
-  border: none;
-  border-radius: var(--raio-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  font-family: var(--fonte-corpo);
-  box-shadow: 0 4px 0 var(--verde-sombra), 0 8px 16px rgba(40,167,69,0.25);
+.footer-icon {
+    width:38px; height:38px; background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.18); border-radius:11px;
+    color:var(--amarelo-acao); display:flex; align-items:center; justify-content:center; flex-shrink:0;
 }
-.btn-copiar-pix:hover {
-  background: var(--verde-hover);
-  transform: translateY(-1px);
+.footer-text { flex:1; }
+.footer-text strong { display:block; font-family:var(--fonte-display); font-size:1rem; font-weight:700; color:var(--branco); margin-bottom:1px; }
+.footer-text span { font-size:.78rem; color:rgba(255,255,255,.7); }
+.footer-validity {
+    display:inline-flex; align-items:center; gap:4px;
+    background:rgba(255,193,7,0.15); border:1px solid rgba(255,193,7,0.4);
+    border-radius:50px; font-size:.74rem; font-weight:800;
+    color:var(--amarelo-acao); padding:4px 12px; flex-shrink:0;
 }
-.btn-copiar-pix:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--verde-sombra);
+
+.aguarde-row {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-size:.8rem; font-weight:600; color:var(--texto-medio); padding:.2rem 0 0;
 }
-.btn-copiar-pix.copiado { background: var(--verde-sombra); }
-.divisor {
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--texto-medio);
-  text-transform: uppercase;
-  margin: 1.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.aguarde-spinner {
+    width:14px; height:14px; border:2px solid var(--azul-luz);
+    border-top-color:var(--azul-principal); border-radius:50%;
+    animation: spin .8s linear infinite; flex-shrink:0;
 }
-.divisor::before, .divisor::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--borda);
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.toast {
+    position:fixed; bottom:26px; left:50%;
+    transform:translateX(-50%) translateY(110px);
+    background:var(--branco); border-radius:var(--raio-md);
+    padding:13px 17px; display:flex; align-items:center; gap:12px;
+    box-shadow:0 14px 40px rgba(0,0,0,.15);
+    border-left:5px solid var(--verde-botao);
+    opacity:0; pointer-events:none;
+    transition: transform .4s cubic-bezier(.34,1.5,.64,1), opacity .3s ease;
+    z-index:9999; width:90%; max-width:360px;
 }
-.instrucao {
-  font-size: 0.8rem;
-  color: var(--texto-medio);
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
-  text-align: center;
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast-check {
+    width:36px; height:36px; flex-shrink:0; border-radius:50%;
+    background:var(--verde-botao); color:var(--branco);
+    display:flex; align-items:center; justify-content:center;
 }
-.instrucao strong { color: var(--azul-escuro); }
-.qr-section { text-align: center; margin-bottom: 1rem; }
-.qr-section img {
-  width: 200px;
-  height: 200px;
-  border-radius: 12px;
-  border: 3px solid var(--borda);
-  margin: 0 auto;
-}
-.qr-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--azul-escuro);
-  margin-bottom: 0.75rem;
-}
-.pix-footer {
-  background: var(--fundo-creme);
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--borda);
-  text-align: center;
-}
-.seguranca {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--texto-medio);
-  margin-bottom: 8px;
-}
-.timer {
-  font-size: 0.75rem;
-  color: var(--texto-medio);
-  font-weight: 600;
-}
-.btn-voltar {
-  display: inline-block;
-  margin-top: 1rem;
-  font-size: 0.8rem;
-  color: var(--azul-principal);
-  text-decoration: underline;
-  font-weight: 700;
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-family: var(--fonte-corpo);
-}
-.erro-container { text-align: center; padding: 2rem; }
-.erro-container .erro-icon { font-size: 3rem; margin-bottom: 1rem; }
-.erro-container h2 { font-size: 1.1rem; color: var(--azul-escuro); margin-bottom: 0.5rem; }
-.erro-container p { font-size: 0.85rem; color: var(--texto-medio); margin-bottom: 1.5rem; }
+.toast-text strong { display:block; font-size:.88rem; font-weight:800; color:var(--texto-forte); }
+.toast-text span { font-size:.75rem; color:var(--texto-medio); font-weight:600; }
+
 .btn-tentar {
-  background: var(--azul-principal);
-  color: var(--branco);
-  font-size: 0.95rem;
-  font-weight: 800;
-  padding: 0.85rem 2rem;
-  border: none;
-  border-radius: var(--raio-sm);
-  cursor: pointer;
-  font-family: var(--fonte-corpo);
-  transition: background 0.2s;
+    background:var(--azul-principal); color:var(--branco);
+    font-size:.95rem; font-weight:800; padding:.85rem 2rem;
+    border:none; border-radius:var(--raio-sm); cursor:pointer;
+    font-family:var(--fonte-corpo); transition:background .2s;
+    margin:2rem auto; display:block;
 }
-.btn-tentar:hover { background: var(--azul-escuro); }
+.btn-tentar:hover { background:var(--azul-escuro); }
+
+@keyframes fadeDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@media(prefers-reduced-motion:reduce){ .btn-copiar{animation:none;} }
+@media(max-width:480px){ .top-title{font-size:1.8rem;} .card{padding:1.2rem .9rem 2.5rem;} }
 </style>
 </head>
 <body>
-<div class="pix-container">
-  <div class="pix-header">
-    <h1>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-      Quase la!
-    </h1>
-    <div class="valor-badge">Doacao de R$ ${esc(amountFormatted)}</div>
-  </div>
-  <div class="pix-body">
-    ${erro ? erroHtml : pixHtml}
-  </div>
-  <div class="pix-footer">
-    <div class="seguranca">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="#28a745"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-      Ambiente 100% seguro &middot; Protegido por Gateway de Pagamento
-    </div>
-    <div class="timer">&#x23F1; Codigo valido por 24h</div>
-    <a href="/" class="btn-voltar">&#x2190; Voltar para a campanha</a>
-  </div>
-</div>
+${bodyContent}
 <script>
-function copiarCodigoPix() {
-  var codeEl = document.getElementById('pixCodeText');
-  var btn = document.getElementById('btnCopiarCodigo');
-  if (!codeEl || !btn) return;
-  var code = codeEl.innerText.trim();
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(code);
-  } else {
-    var ta = document.createElement('textarea');
-    ta.value = code;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
+function copiarTexto() {
+    var texto = document.getElementById("copia_cola").value;
+    var btn = document.getElementById("copyBtn");
+    var label = btn.querySelector(".copy-text");
+    var toast = document.getElementById("toast");
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(texto).then(function() {
+            mostrarCopiado(btn, label, toast);
+        }).catch(function() {
+            fallbackCopy(texto, btn, label, toast);
+        });
+    } else {
+        fallbackCopy(texto, btn, label, toast);
+    }
+}
+
+function fallbackCopy(texto, btn, label, toast) {
+    var ta = document.createElement("textarea");
+    ta.value = texto;
+    ta.style.position = "fixed";
+    ta.style.left = "-999999px";
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
-    document.execCommand('copy');
+    try { document.execCommand('copy'); mostrarCopiado(btn, label, toast); } catch(e) {}
     document.body.removeChild(ta);
-  }
-  btn.classList.add('copiado');
-  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> CODIGO COPIADO!';
-  setTimeout(function() {
-    btn.classList.remove('copiado');
-    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> COPIAR CODIGO PIX';
-  }, 3000);
+}
+
+function mostrarCopiado(btn, label, toast) {
+    btn.classList.add('copied');
+    label.textContent = 'CÓDIGO COPIADO COM SUCESSO!';
+    toast.classList.add('show');
+    setTimeout(function() {
+        btn.classList.remove('copied');
+        label.textContent = 'COPIAR CÓDIGO PIX';
+        toast.classList.remove('show');
+    }, 3000);
 }
 </script>
 </body>
