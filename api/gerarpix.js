@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     } else {
       const json = await response.json();
 
-      transactionId = json.checkout?.id || '';
+      transactionId = json.checkout?.id || json.id || json.checkoutId || '';
 
       if (json.nextAction?.type === 'qr_code' && json.nextAction?.code) {
         pixCode = json.nextAction.code;
@@ -549,16 +549,29 @@ var orderId = document.getElementById('transactionId') ? document.getElementById
 var donationVal = document.getElementById('donationAmount') ? parseFloat(document.getElementById('donationAmount').value) : 0;
 var paymentConfirmed = false;
 
+function getCookie(name) {
+    var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : '';
+}
+
 function checkPaymentStatus() {
     if (!orderId || paymentConfirmed) return;
-    fetch('/api/check-status?order_id=' + encodeURIComponent(orderId))
+    var fbp = getCookie('_fbp');
+    var fbc = getCookie('_fbc');
+    var params = 'order_id=' + encodeURIComponent(orderId);
+    if (fbp) params += '&fbp=' + encodeURIComponent(fbp);
+    if (fbc) params += '&fbc=' + encodeURIComponent(fbc);
+    params += '&page_url=' + encodeURIComponent(window.location.href);
+    fetch('/api/check-status?' + params)
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.status === 'paid' && !paymentConfirmed) {
                 paymentConfirmed = true;
+                var finalVal = data.amount || donationVal;
+                var evtId = 'purchase_' + orderId;
                 if (typeof ttq !== 'undefined') {
                     ttq.track('CompletePayment', {
-                        value: donationVal,
+                        value: finalVal,
                         currency: 'BRL',
                         content_name: 'Doacao Fernanda',
                         content_category: 'doacao'
@@ -566,11 +579,11 @@ function checkPaymentStatus() {
                 }
                 if (typeof fbq !== 'undefined') {
                     fbq('track', 'Purchase', {
-                        value: donationVal,
+                        value: finalVal,
                         currency: 'BRL',
                         content_name: 'Doacao Fernanda',
                         content_category: 'doacao'
-                    });
+                    }, {eventID: evtId});
                 }
                 var spinner = document.querySelector('.aguarde-spinner');
                 var row = document.querySelector('.aguarde-row');
