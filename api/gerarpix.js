@@ -2,8 +2,8 @@ import { randomUUID } from 'crypto';
 
 export default async function handler(req, res) {
   const ZENITH_API_URL = 'https://api.zenithworld.com.br/integrations/checkouts';
-  const ZENITH_PUBLIC_KEY = 'zp_pub_3114ffe65bbe012cf669d735414ecd2c';
-  const ZENITH_SECRET_KEY = 'zp_sec_f1e45266fd75d3e52fa5398574b6e8ac4e97a41da7b47706';
+  const ZENITH_PUBLIC_KEY = 'zp_pub_252245bb33f50e89d481f2fd909c91fb';
+  const ZENITH_SECRET_KEY = 'zp_sec_dc74d58555de16f6838c0246ed0991291642443bb9e19c97';
 
   const amount = parseFloat(req.query.amount) || 0;
   const nome = (req.query.nome || 'Construindo Futuro').trim();
